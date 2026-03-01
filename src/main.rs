@@ -1,6 +1,6 @@
 mod cli;
 
-use std::{fmt::Debug, fs::File, path::PathBuf, process::ExitCode};
+use std::{fmt::Debug, path::PathBuf, process::ExitCode};
 
 use ascii_cleaner::AsciiCleaner;
 
@@ -50,10 +50,10 @@ fn smain() -> CliResult<()> {
     // TODO: check if is ascii before define here
     let replace_char = '?' as u8;
 
-    let file = File::open(path)?;
-    // let ascii_cleaner = AsciiCleaner::builder().file(file).verbose().finish();
-    // let ascii_cleaner = AsciiCleaner::builder().file(file).finish();
-    let ascii_cleaner = AsciiCleaner::new(file);
+    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.verbose().finish();
+    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.finish();
+
+    let ascii_cleaner = AsciiCleaner::new(path)?;
     let report = match verb.as_ref() {
         "detect" => ascii_cleaner.detect()?,
         "remove" => ascii_cleaner.remove()?,
