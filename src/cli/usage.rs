@@ -15,8 +15,6 @@ COMMANDS:
 
 OPTIONS (for sanitize command):
     --no-backup         Don't create backup file
-    --remove            Remove non-ASCII characters instead of replacing
-    --no-replace        Don't replace non-ASCII characters (remove them)
     --replace=CHAR      Replace non-ASCII characters with CHAR (default: '?')
 
 EXAMPLES:

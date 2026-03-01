@@ -13,9 +13,3 @@ impl From<StdIoError> for AsciiCleanerError {
         Self::StdIo(value)
     }
 }
-
-impl AsciiCleanerError {
-    pub fn msg<S: AsRef<str>>(s: S) -> Self {
-        Self::msg(s.as_ref().to_string())
-    }
-}

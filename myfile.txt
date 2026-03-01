@@ -1,2 +1,24 @@
+ASCII Cleaner v0.1.2
+
+USAGE:
+    ascii-cleaner <COMMAND> <FILE> [OPTIONS]
+
+COMMANDS:
+    detect      Detect non-ASCII characters in file
+    remove      Remove non-ASCII characters
+    replace     Replace non-ASCII characters
+
+OPTIONS (for sanitize command):
+    --no-backup         Don't create backup file
+    --replace=CHAR      Replace non-ASCII characters with CHAR (default: '?')
+
+EXAMPLES:
+    ascii-cleaner detect myfile.txt
+    ascii-cleaner sanitize myfile.txt
+    ascii-cleaner remove myfile.txt --remove
+    ascii-cleaner remove myfile.txt --remove --no-backup
+    ascii-cleaner replace myfile.txt
+    ascii-cleaner replace myfile.txt --replace=*
+---
 Hello
 UÚù[World!

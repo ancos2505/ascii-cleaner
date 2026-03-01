@@ -47,13 +47,20 @@ fn smain() -> CliResult<()> {
         .next()
         .ok_or(CliError::InvalidFilePath)?;
 
-    let mut file = File::open(path)?;
+    // TODO: check if is ascii before define here
+    let replace_char = '?' as u8;
 
+    let file = File::open(path)?;
+    // let ascii_cleaner = AsciiCleaner::builder().file(file).verbose().finish();
+    // let ascii_cleaner = AsciiCleaner::builder().file(file).finish();
+    let ascii_cleaner = AsciiCleaner::new(file);
     let report = match verb.as_ref() {
-        "detect" => AsciiCleaner::detect(file)?,
+        "detect" => ascii_cleaner.detect()?,
+        "remove" => ascii_cleaner.remove()?,
+        "replace" => ascii_cleaner.replace(replace_char)?,
         _ => return Err(CliError::UnknownVerb(verb)),
     };
-    println!("{report:?}");
+    println!("{report}");
 
     Ok(())
 }
