@@ -1,12 +1,8 @@
 mod cli;
 
-use std::{
-    fs::File,
-    path::PathBuf,
-    process::{ExitCode, ExitStatus},
-};
+use std::{fmt::Debug, fs::File, path::PathBuf, process::ExitCode};
 
-use ascii_cleaner::{AsciiCleaner, AsciiCleanerError, AsciiCleanerResult};
+use ascii_cleaner::AsciiCleaner;
 
 use crate::cli::{Cli, CliError, CliResult};
 
@@ -14,20 +10,32 @@ fn main() -> ExitCode {
     match smain() {
         Ok(_) => ExitCode::SUCCESS,
         Err(err) => {
-            eprintln!("{err:?}");
-            ExitCode::FAILURE
+            match &err {
+                CliError::NoArgs => {
+                    println!("{}", Cli::usage())
+                }
+                CliError::UnknownVerb(_) => print_error(&err),
+                CliError::StdIo(_) => print_error(&err),
+                CliError::AsciiCleaner(_) => print_error(&err),
+                _ => print_error(&err),
+            };
+            err.into()
         }
     }
+}
+fn print_error<D: Debug>(error: &D) {
+    eprintln!("{error:?}")
 }
 
 fn smain() -> CliResult<()> {
     let mut args = std::env::args();
 
+    let _ = args.next();
+
     let verb = match args.next() {
         Some(verb) => verb,
         None => {
-            println!("{}", Cli::usage());
-            return Err(CliError::MissingVerb);
+            return Err(CliError::NoArgs);
         }
     };
     let path = args
@@ -42,12 +50,10 @@ fn smain() -> CliResult<()> {
     let mut file = File::open(path)?;
 
     let report = match verb.as_ref() {
-        "analyze" => AsciiCleaner::analyze(file)?,
+        "detect" => AsciiCleaner::detect(file)?,
         _ => return Err(CliError::UnknownVerb(verb)),
     };
-
-    // let verb = maybe_verb.ok_or(CliError::MissingVerb)?;
-    // let path = maybe_input.ok_or(CliError::MissingInput)?;
+    println!("{report:?}");
 
     Ok(())
 }

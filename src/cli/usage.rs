@@ -3,14 +3,15 @@ use crate::cli::Cli;
 impl Cli {
     pub(crate) fn usage() -> String {
         let output = r#"
-ASCII File Sanitizer
+ASCII Cleaner v0.1.2
 
 USAGE:
     ascii-cleaner <COMMAND> <FILE> [OPTIONS]
 
 COMMANDS:
     detect      Detect non-ASCII characters in file
-    sanitize    Remove or replace non-ASCII characters
+    remove      Remove non-ASCII characters
+    replace     Replace non-ASCII characters
 
 OPTIONS (for sanitize command):
     --no-backup         Don't create backup file
@@ -21,8 +22,11 @@ OPTIONS (for sanitize command):
 EXAMPLES:
     ascii-cleaner detect myfile.txt
     ascii-cleaner sanitize myfile.txt
-    ascii-cleaner sanitize myfile.txt --replace=*
-    ascii-cleaner sanitize myfile.txt --remove --no-backup
+    ascii-cleaner remove myfile.txt --remove
+    ascii-cleaner remove myfile.txt --remove --no-backup
+    ascii-cleaner replace myfile.txt
+    ascii-cleaner replace myfile.txt --replace=*
+    
 "#;
         output.to_owned()
     }
