@@ -23,11 +23,11 @@ pub struct BuilderWithFile {
     file: File,
 }
 impl BuilderWithFile {
-    pub fn verbose(self) -> BuilderToFinish {
+    pub fn log_mode(self) -> BuilderToFinish {
         let Self { file, file_path } = self;
         BuilderToFinish {
             file,
-            verbose: true,
+            log_mode: true,
             file_path,
         }
     }
@@ -36,7 +36,7 @@ impl BuilderWithFile {
         AsciiCleaner {
             file,
             file_path,
-            verbose: false,
+            log_mode: false,
             with_backup: true,
         }
     }
@@ -45,20 +45,20 @@ impl BuilderWithFile {
 pub struct BuilderToFinish {
     file: File,
     file_path: PathBuf,
-    verbose: bool,
+    log_mode: bool,
 }
 
 impl BuilderToFinish {
     pub fn finish(self) -> AsciiCleaner {
         let Self {
             file,
-            verbose,
+            log_mode,
             file_path,
         } = self;
         AsciiCleaner {
             file_path,
             file,
-            verbose,
+            log_mode,
             with_backup: true,
         }
     }

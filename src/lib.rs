@@ -13,7 +13,7 @@ pub use result::{AsciiCleanerError, AsciiCleanerResult};
 use crate::builder::Builder;
 
 pub struct AsciiCleaner {
-    verbose: bool,
+    log_mode: bool,
     with_backup: bool,
     file_path: PathBuf,
     file: File,
@@ -24,7 +24,7 @@ impl AsciiCleaner {
             let file = File::open(&path)?;
             Ok(Self {
                 with_backup: true,
-                verbose: false,
+                log_mode: false,
                 file,
                 file_path: path,
             })

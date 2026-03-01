@@ -22,8 +22,8 @@ impl AsciiCleaner {
                     column,
                     byte: (*c).into(),
                 };
-                // TODO:
-                if self.verbose == true {
+
+                if self.log_mode == true {
                     println!("{found}")
                 }
                 findings.push(found);

@@ -20,8 +20,8 @@ OPTIONS (for sanitize command):
 EXAMPLES:
     ascii-cleaner detect myfile.txt
     ascii-cleaner sanitize myfile.txt
-    ascii-cleaner remove myfile.txt --remove
-    ascii-cleaner remove myfile.txt --remove --no-backup
+    ascii-cleaner remove myfile.txt 
+    ascii-cleaner remove myfile.txt --no-backup
     ascii-cleaner replace myfile.txt
     ascii-cleaner replace myfile.txt --replace=*
     
