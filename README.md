@@ -121,13 +121,13 @@ $ ascii-cleaner
 ASCII File Sanitizer
 
 USAGE:
-    ascii-cleaner <COMMAND> <FILE> [OPTIONS]
+    ascii-cleaner <ACTION> <FILE> [OPTIONS]
 
-COMMANDS:
+ACTIONS:
     detect      Detect non-ASCII characters in file
     sanitize    Remove or replace non-ASCII characters
 
-OPTIONS (for sanitize command):
+OPTIONS (for sanitize action):
     --no-backup         Don't create backup file
     --remove            Remove non-ASCII characters instead of replacing
     --no-replace        Don't replace non-ASCII characters (remove them)

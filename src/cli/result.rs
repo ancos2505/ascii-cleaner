@@ -7,7 +7,7 @@ pub type CliResult<T> = Result<T, CliError>;
 #[derive(Debug)]
 pub enum CliError {
     NoArgs,
-    UnknownVerb(String),
+    UnknownAction(String),
     MissingFilePath,
     InvalidFilePath,
     // MissingInput,
@@ -31,7 +31,7 @@ impl From<CliError> for ExitCode {
     fn from(value: CliError) -> Self {
         let outcome = match value {
             CliError::NoArgs => 1,
-            CliError::UnknownVerb(_) => 2,
+            CliError::UnknownAction(_) => 2,
             CliError::MissingFilePath => 2,
             CliError::InvalidFilePath => 2,
             CliError::StdIo(_) => 3,

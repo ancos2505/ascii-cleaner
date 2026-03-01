@@ -2,7 +2,7 @@ mod cli;
 
 use std::{fmt::Debug, path::PathBuf, process::ExitCode};
 
-use ascii_cleaner::AsciiCleaner;
+use ascii_cleaner::{AsciiCleaner, ReplaceChar, WithBackup};
 
 use crate::cli::{Cli, CliError, CliResult};
 
@@ -11,10 +11,10 @@ fn main() -> ExitCode {
         Ok(_) => ExitCode::SUCCESS,
         Err(err) => {
             match &err {
-                CliError::NoArgs => {
+                CliError::NoArgs | CliError::UnknownAction(_) => {
+                    print_error(&err);
                     println!("{}", Cli::usage())
                 }
-                CliError::UnknownVerb(_) => print_error(&err),
                 CliError::StdIo(_) => print_error(&err),
                 CliError::AsciiCleaner(_) => print_error(&err),
                 _ => print_error(&err),
@@ -24,46 +24,27 @@ fn main() -> ExitCode {
     }
 }
 fn print_error<D: Debug>(error: &D) {
-    eprintln!("{error:?}")
+    eprintln!("Error: {error:?}")
 }
 
 fn smain() -> CliResult<()> {
     let mut args = std::env::args();
 
-    let args_len = args.len();
+    assert!(args.len() <= 5);
 
     let _ = args.next();
 
-    let verb = match args.next() {
-        Some(verb) => verb,
+    let action = match args.next() {
+        Some(action) => {
+            match action.as_str() {
+                "detect" | "remove" | "replace" => (),
+                _ => return Err(CliError::UnknownAction(action)),
+            };
+            action
+        }
         None => {
             return Err(CliError::NoArgs);
         }
-    };
-
-    let verb = match verb.as_ref() {
-        "detect" => Verb::Detect,
-        "remove" => Verb::Remove(with_backup),
-        "replace" => Verb::Replace(with_backup, replace_char),
-        _ => return Err(CliError::UnknownVerb(verb)),
-    };
-
-    // TODO: check if is ascii before define here
-    let replace_char = ReplaceChar::default();
-    let with_backup = WithBackup::Yes;
-
-    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.finish();
-
-    // TODO: Get log_mode from args
-    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.log_mode().finish();
-
-    let ascii_cleaner = AsciiCleaner::new(path)?;
-
-    let report = match verb.as_ref() {
-        "detect" => ascii_cleaner.detect()?,
-        "remove" => ascii_cleaner.remove()?,
-        "replace" => ascii_cleaner.replace(replace_char)?,
-        _ => return Err(CliError::UnknownVerb(verb)),
     };
 
     let path = args
@@ -74,40 +55,64 @@ fn smain() -> CliResult<()> {
         .filter(|path| path.is_file())
         .next()
         .ok_or(CliError::InvalidFilePath)?;
+
+    let mut with_backup = WithBackup::BackupFile;
+
+    let mut replace_char = ReplaceChar::default();
+
+    let parameters = args.into_iter().collect::<Vec<String>>();
+
+    dbg!(&parameters);
+
+    for item in parameters {
+        if &item == "--no-backup" {
+            with_backup = WithBackup::NoBackupFile
+        }
+        if item.contains("--replace=") {
+            replace_char = item
+                .split('=')
+                .nth(1)
+                .and_then(|s| s.split('\'').nth(1))
+                .and_then(|s| s.chars().next())
+                .filter(|c| c.is_ascii())
+                .map(|c| c as u8)
+                .map(|c| c.into())
+                .unwrap_or_default();
+        }
+    }
+
+    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.finish();
+
+    // TODO: Get log_mode from args
+    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.log_mode().finish();
+
+    let action = match action.as_ref() {
+        "detect" => Action::Detect,
+        "remove" => Action::Remove(with_backup),
+        "replace" => Action::Replace(with_backup, replace_char),
+        _ => return Err(CliError::UnknownAction(action)),
+    };
+
+    dbg!(&action);
+
+    let ascii_cleaner = AsciiCleaner::new(path)?;
+
+    let report = match action {
+        Action::Detect => ascii_cleaner.detect(),
+        Action::Remove(with_backup) => ascii_cleaner.remove(with_backup.into()),
+        Action::Replace(with_backup, replace_char) => {
+            ascii_cleaner.replace(with_backup.into(), replace_char.into())
+        }
+    }?;
+
     println!("{report}");
 
     Ok(())
 }
 
 #[derive(Debug)]
-pub(crate) enum Verb {
+pub(crate) enum Action {
     Detect,
     Remove(WithBackup),
     Replace(WithBackup, ReplaceChar),
 }
-
-#[derive(Debug)]
-pub(crate) enum WithBackup {
-    Yes,
-    No,
-}
-
-#[derive(Debug)]
-pub(crate) struct ReplaceChar(u8);
-impl Default for ReplaceChar {
-    fn default() -> Self {
-        Self('?' as u8)
-    }
-}
-
-impl From<ReplaceChar> for char {
-    fn from(value: ReplaceChar) -> Self {
-        value.0
-    }
-}
-
-// 1. Detect
-// 2. Store report item
-// 3. Optional: sanitize
-// 4.   Sanitazing action: replace for what char ?
-// 5. Return full Report

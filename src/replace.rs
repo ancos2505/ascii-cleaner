@@ -1,12 +1,16 @@
 use std::{io::Read, num::NonZeroUsize, ops::Not};
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult,
+    AsciiCleaner, AsciiCleanerResult, ReplaceChar, WithBackup,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
-    pub fn replace(mut self, replace_char: u8) -> AsciiCleanerResult<AsciiCleanerReport> {
+    pub fn replace(
+        mut self,
+        with_backup: WithBackup,
+        replace_char: ReplaceChar,
+    ) -> AsciiCleanerResult<AsciiCleanerReport> {
         let mut buf: Vec<u8> = vec![];
         let bytes_read = self.file.read_to_end(&mut buf)?;
         let mut findings: Vec<AsciiCleanerReportItem> = vec![];

@@ -1,30 +1,15 @@
 use std::{io::Read, num::NonZeroUsize, ops::Not};
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult,
-    helper::now_in_unix_epoch,
+    AsciiCleaner, AsciiCleanerResult, WithBackup,
+    helper::{backup_file, now_in_unix_epoch},
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
-    pub fn remove(mut self) -> AsciiCleanerResult<AsciiCleanerReport> {
-        if self.with_backup {
-            let extension = self
-                .file_path
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s.to_owned())
-                .unwrap_or("bak".to_owned());
-            dbg!(&extension);
-
-            let mut new_file_path = self.file_path.clone();
-
-            new_file_path.add_extension(format!("{extension}.{}", now_in_unix_epoch()?));
-
-            // let bak_file = File::create_new(self.file_path)
-            //     .map_or_else(|e| Ok(File::create_new(new_path)?), |f| Ok(f))?;
-
-            std::fs::copy(self.file_path, new_file_path)?;
+    pub fn remove(mut self, with_backup: WithBackup) -> AsciiCleanerResult<AsciiCleanerReport> {
+        if with_backup == WithBackup::BackupFile {
+            backup_file(&self)?;
         }
 
         let mut buf: Vec<u8> = vec![];

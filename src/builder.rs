@@ -37,7 +37,6 @@ impl BuilderWithFile {
             file,
             file_path,
             log_mode: false,
-            with_backup: true,
         }
     }
 }
@@ -59,7 +58,6 @@ impl BuilderToFinish {
             file_path,
             file,
             log_mode,
-            with_backup: true,
         }
     }
 }
