@@ -2,6 +2,7 @@ mod cli;
 
 use std::{
     fs::File,
+    path::PathBuf,
     process::{ExitCode, ExitStatus},
 };
 
@@ -13,9 +14,9 @@ fn main() -> ExitCode {
     match smain() {
         Ok(_) => ExitCode::SUCCESS,
         Err(err) => {
-            dbg!(err);
+            eprintln!("{err:?}");
             ExitCode::FAILURE
-        },
+        }
     }
 }
 
@@ -29,7 +30,14 @@ fn smain() -> CliResult<()> {
             return Err(CliError::MissingVerb);
         }
     };
-    let maybe_input = args.next();
+    let path = args
+        .next()
+        .map(PathBuf::from)
+        .ok_or(CliError::MissingFilePath)
+        .into_iter()
+        .filter(|path| path.is_file())
+        .next()
+        .ok_or(CliError::InvalidFilePath)?;
 
     let mut file = File::open(path)?;
 

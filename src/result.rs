@@ -1,4 +1,4 @@
-pub type AsciiCleanerResult<T> = Result<T,AsciiCleanerError>;
+pub type AsciiCleanerResult<T> = Result<T, AsciiCleanerError>;
 
 #[derive(Debug)]
 pub enum AsciiCleanerError {

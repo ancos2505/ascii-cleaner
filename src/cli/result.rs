@@ -8,7 +8,9 @@ pub type CliResult<T> = Result<T, CliError>;
 pub enum CliError {
     MissingVerb,
     UnknownVerb(String),
-    MissingInput,
+    MissingFilePath,
+    InvalidFilePath,
+    // MissingInput,
     Stdio(StdioError),
     AsciiCleaner(AsciiCleanerError),
 }
@@ -24,4 +26,3 @@ impl From<AsciiCleanerError> for CliError {
         Self::AsciiCleaner(value)
     }
 }
-
