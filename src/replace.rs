@@ -1,25 +1,46 @@
-use std::{io::Read, num::NonZeroUsize, ops::Not};
+use std::{
+    fs::File,
+    io::{Read as _, Write as _},
+    num::NonZeroUsize,
+};
 
 use crate::{
     AsciiCleaner, AsciiCleanerResult, ReplaceChar, WithBackup,
+    helper::backup_file,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
     pub fn replace(
-        mut self,
+        self,
         with_backup: WithBackup,
-        replace_char: ReplaceChar,
+        replace_char: Option<ReplaceChar>,
     ) -> AsciiCleanerResult<AsciiCleanerReport> {
-        let mut buf: Vec<u8> = vec![];
-        let bytes_read = self.file.read_to_end(&mut buf)?;
+        if with_backup == WithBackup::BackupFile {
+            backup_file(&self)?;
+        }
+        let Self {
+            log_mode,
+            file_path,
+            mut file,
+        } = self;
+
+        let mut buf_input: Vec<u8> = vec![];
+
+        let bytes_read = file.read_to_end(&mut buf_input)?;
+        drop(file);
+
+        let mut new_file = File::create(file_path)?;
+
         let mut findings: Vec<AsciiCleanerReportItem> = vec![];
         let mut line = NonZeroUsize::new(1).unwrap();
         let mut column = NonZeroUsize::new(1).unwrap();
         let mut success = true;
 
-        for (idx, c) in buf.iter().enumerate() {
-            if c.is_ascii().not() {
+        for (idx, c) in buf_input.iter().enumerate() {
+            if c.is_ascii() {
+                new_file.write(&[*c])?;
+            } else {
                 let found = AsciiCleanerReportItem {
                     offset: idx.into(),
                     line,
@@ -59,6 +80,7 @@ impl AsciiCleaner {
             }
         }
 
+        new_file.sync_all()?;
         let report = AsciiCleanerReport {
             success,
             bytes_read,
@@ -66,9 +88,4 @@ impl AsciiCleaner {
         };
         Ok(report)
     }
-
-    // pub fn sanitize<R: Read>(reader: R) -> AsciiCleanerResult<()> {
-    //     todo!();
-    //     Ok(())
-    // }
 }

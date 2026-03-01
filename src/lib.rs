@@ -6,7 +6,10 @@ mod replace;
 mod report;
 mod result;
 
-use std::{fs::File, path::PathBuf};
+use std::{
+    fs::{File, OpenOptions},
+    path::PathBuf,
+};
 
 pub use result::{AsciiCleanerError, AsciiCleanerResult};
 
@@ -20,10 +23,9 @@ pub struct AsciiCleaner {
 impl AsciiCleaner {
     pub fn new(path: PathBuf) -> AsciiCleanerResult<Self> {
         if path.is_file() {
-            let file = File::open(&path)?;
             Ok(Self {
                 log_mode: false,
-                file,
+                file: OpenOptions::new().read(true).write(true).open(&path)?,
                 file_path: path,
             })
         } else {

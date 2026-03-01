@@ -62,9 +62,4 @@ impl AsciiCleaner {
         };
         Ok(report)
     }
-
-    // pub fn sanitize<R: Read>(reader: R) -> AsciiCleanerResult<()> {
-    //     todo!();
-    //     Ok(())
-    // }
 }
