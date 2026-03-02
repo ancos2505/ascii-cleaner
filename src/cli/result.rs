@@ -10,6 +10,7 @@ pub enum CliError {
     UnknownAction(String),
     MissingFilePath,
     InvalidFilePath,
+    InvalidReplaceCharArg(String),
     // MissingInput,
     StdIo(StdIoError),
     AsciiCleaner(AsciiCleanerError),
@@ -34,6 +35,7 @@ impl From<CliError> for ExitCode {
             CliError::UnknownAction(_) => 2,
             CliError::MissingFilePath => 2,
             CliError::InvalidFilePath => 2,
+            CliError::InvalidReplaceCharArg(_) => 2,
             CliError::StdIo(_) => 3,
             CliError::AsciiCleaner(_) => 4,
         };

@@ -38,7 +38,7 @@ impl AsciiCleaner {
         let mut success = true;
 
         for (idx, c) in buf_input.iter().enumerate() {
-            if c.is_ascii() {
+            if Self::is_allowed_ascii(*c as char) {
                 new_file.write(&[*c])?;
             } else {
                 let found = AsciiCleanerReportItem {
@@ -52,6 +52,9 @@ impl AsciiCleaner {
                     println!("{found}")
                 }
                 findings.push(found);
+                if let Some(ref char_to_replace) = replace_char {
+                    new_file.write(&[**char_to_replace])?;
+                }
             }
 
             if *c == 10 {

@@ -19,16 +19,21 @@ impl Display for AsciiCleanerReport {
         output.push_str(format!(r#""success":{},"#, self.success).as_str());
         output.push_str(format!(r#""bytes_read":{},"#, self.bytes_read).as_str());
         output.push_str(format!(r#""findings":"#).as_str());
-        output.push('[');
-        let len = self.findings.len();
-        for (idx, item) in self.findings.iter().enumerate() {
-            output.push_str(format!(r#"{item}"#,).as_str());
-            if idx < len - 1 {
-                output.push(',');
+        if self.findings.len() > 0 {
+            output.push('[');
+            let len = self.findings.len();
+            for (idx, item) in self.findings.iter().enumerate() {
+                output.push_str(format!(r#"{item}"#,).as_str());
+                if idx < len - 1 {
+                    output.push(',');
+                }
             }
+
+            output.push(']');
+        } else {
+            output.push_str("null");
         }
 
-        output.push(']');
         output.push('}');
         write!(f, "{output}")
     }

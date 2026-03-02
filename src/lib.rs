@@ -7,7 +7,9 @@ mod report;
 mod result;
 
 use std::{
+    fmt::{Debug, Display},
     fs::{File, OpenOptions},
+    ops::Deref,
     path::PathBuf,
 };
 
@@ -43,20 +45,30 @@ pub enum WithBackup {
     NoBackupFile,
 }
 
-// impl From<WithBackup> for bool {
-//     fn from(value: WithBackup) -> Self {
-//         match value {
-//             WithBackup::BackupFile => true,
-//             WithBackup::NoBackupFile => false,
-//         }
-//     }
-// }
-
-#[derive(Debug)]
 pub struct ReplaceChar(u8);
 impl Default for ReplaceChar {
     fn default() -> Self {
         Self('?' as u8)
+    }
+}
+
+impl Deref for ReplaceChar {
+    type Target = u8;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Display for ReplaceChar {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, r#"{}"#, self.0 as char)
+    }
+}
+
+impl Debug for ReplaceChar {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "'{}'", self.0 as char)
     }
 }
 

@@ -15,7 +15,7 @@ ACTIONS:
 
 OPTIONS (for sanitize action):
     --no-backup         Don't create backup file
-    --replace=CHAR      Replace non-ASCII characters with CHAR (default: '?')
+    --char=CHAR      Replace non-ASCII characters with CHAR (default: '?')
 
 EXAMPLES:
     ascii-cleaner detect myfile.txt
@@ -23,7 +23,7 @@ EXAMPLES:
     ascii-cleaner remove myfile.txt 
     ascii-cleaner remove myfile.txt --no-backup
     ascii-cleaner replace myfile.txt
-    ascii-cleaner replace myfile.txt --replace='*'
+    ascii-cleaner replace myfile.txt --char='*'
     
 "#;
         output.to_owned()

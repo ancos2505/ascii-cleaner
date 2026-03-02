@@ -15,7 +15,7 @@ impl AsciiCleaner {
         let mut success = true;
 
         for (idx, c) in buf.iter().enumerate() {
-            if c.is_ascii().not() {
+            if Self::is_allowed_ascii(*c as char).not() {
                 let found = AsciiCleanerReportItem {
                     offset: idx.into(),
                     line,

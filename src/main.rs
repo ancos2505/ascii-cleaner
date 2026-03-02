@@ -58,29 +58,23 @@ fn smain() -> CliResult<()> {
 
     let mut with_backup = WithBackup::BackupFile;
 
-    let mut replace_char = ReplaceChar::default();
+    let mut maybe_replace_char = Some(ReplaceChar::default());
 
-    let parameters = args.into_iter().collect::<Vec<String>>();
-
-    dbg!(&parameters);
-
-    for item in parameters {
+    for item in args.into_iter().collect::<Vec<String>>() {
         if &item == "--no-backup" {
             with_backup = WithBackup::NoBackupFile
         }
-        if item.contains("--replace=") {
-            replace_char = item
+        if item.contains("--char=") {
+            maybe_replace_char = item
                 .split('=')
                 .nth(1)
-                .and_then(|s| s.split('\'').nth(1))
                 .and_then(|s| s.chars().next())
-                .filter(|c| c.is_ascii())
+                .filter(|c| AsciiCleaner::is_allowed_ascii(*c as char))
                 .map(|c| c as u8)
-                .map(|c| c.into())
-                .unwrap_or_default();
+                .map(|c| c.into());
         }
     }
-
+    dbg!(&maybe_replace_char);
     // let ascii_cleaner = AsciiCleaner::builder().file(path)?.finish();
 
     // TODO: Get log_mode from args
@@ -89,7 +83,10 @@ fn smain() -> CliResult<()> {
     let action = match action.as_ref() {
         "detect" => Action::Detect,
         "remove" => Action::Remove(with_backup),
-        "replace" => Action::Replace(with_backup, replace_char),
+        "replace" => match maybe_replace_char {
+            Some(replace_char) => Action::Replace(with_backup, replace_char),
+            None => return Err(CliError::InvalidReplaceCharArg(action)),
+        },
         _ => return Err(CliError::UnknownAction(action)),
     };
 
@@ -99,7 +96,7 @@ fn smain() -> CliResult<()> {
 
     let report = match action {
         Action::Detect => ascii_cleaner.detect(),
-        Action::Remove(with_backup) => ascii_cleaner.remove(with_backup.into()),
+        Action::Remove(with_backup) => ascii_cleaner.remove(with_backup),
         Action::Replace(with_backup, replace_char) => {
             ascii_cleaner.replace(with_backup.into(), replace_char.into())
         }
