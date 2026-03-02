@@ -1,6 +1,6 @@
 use std::{fs::File, path::PathBuf};
 
-use crate::{AsciiCleaner, AsciiCleanerError, AsciiCleanerResult};
+use crate::{AsciiCleaner, AsciiCleanerError, AsciiCleanerResult, LogMode};
 
 pub struct Builder;
 
@@ -27,7 +27,7 @@ impl BuilderWithFile {
         let Self { file, file_path } = self;
         BuilderToFinish {
             file,
-            log_mode: true,
+            log_mode: LogMode::PrintOnEachFinding,
             file_path,
         }
     }
@@ -36,7 +36,7 @@ impl BuilderWithFile {
         AsciiCleaner {
             file,
             file_path,
-            log_mode: false,
+            log_mode: LogMode::No,
         }
     }
 }
@@ -44,7 +44,7 @@ impl BuilderWithFile {
 pub struct BuilderToFinish {
     file: File,
     file_path: PathBuf,
-    log_mode: bool,
+    log_mode: LogMode,
 }
 
 impl BuilderToFinish {

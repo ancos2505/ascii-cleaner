@@ -1,14 +1,20 @@
 use std::{io::Read, num::NonZeroUsize, ops::Not};
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult,
+    AsciiCleaner, AsciiCleanerResult, LogMode,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
-    pub fn detect(mut self) -> AsciiCleanerResult<AsciiCleanerReport> {
+    pub fn detect(self) -> AsciiCleanerResult<AsciiCleanerReport> {
+        let Self {
+            log_mode,
+            #[allow(unused_variables)]
+            file_path,
+            mut file,
+        } = self;
         let mut buf: Vec<u8> = vec![];
-        let bytes_read = self.file.read_to_end(&mut buf)?;
+        let bytes_read = file.read_to_end(&mut buf)?;
         let mut findings: Vec<AsciiCleanerReportItem> = vec![];
         let mut line = NonZeroUsize::new(1).unwrap();
         let mut column = NonZeroUsize::new(1).unwrap();
@@ -23,7 +29,7 @@ impl AsciiCleaner {
                     byte: (*c).into(),
                 };
 
-                if self.log_mode == true {
+                if log_mode == LogMode::PrintOnEachFinding {
                     println!("{found}")
                 }
                 findings.push(found);

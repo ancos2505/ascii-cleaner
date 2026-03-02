@@ -17,8 +17,9 @@ pub use result::{AsciiCleanerError, AsciiCleanerResult};
 
 use crate::builder::Builder;
 
+#[derive(Debug)]
 pub struct AsciiCleaner {
-    log_mode: bool,
+    log_mode: LogMode,
     file_path: PathBuf,
     file: File,
 }
@@ -26,7 +27,7 @@ impl AsciiCleaner {
     pub fn new(path: PathBuf) -> AsciiCleanerResult<Self> {
         if path.is_file() {
             Ok(Self {
-                log_mode: false,
+                log_mode: LogMode::No,
                 file: OpenOptions::new().read(true).write(true).open(&path)?,
                 file_path: path,
             })
@@ -37,6 +38,11 @@ impl AsciiCleaner {
     pub fn builder() -> Builder {
         Builder
     }
+}
+#[derive(Debug, PartialEq, Eq)]
+pub enum LogMode {
+    PrintOnEachFinding,
+    No,
 }
 
 #[derive(Debug, PartialEq, Eq)]

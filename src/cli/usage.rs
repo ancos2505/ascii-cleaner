@@ -2,8 +2,7 @@ use crate::cli::Cli;
 
 impl Cli {
     pub(crate) fn usage() -> String {
-        let output = r#"
-ASCII Cleaner v0.1.2
+        let output = r#"ASCII Cleaner v0.1.2
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]
@@ -19,12 +18,14 @@ OPTIONS (for sanitize action):
 
 EXAMPLES:
     ascii-cleaner detect myfile.txt
-    ascii-cleaner sanitize myfile.txt
+    ascii-cleaner detect myfile.txt --log-mode
     ascii-cleaner remove myfile.txt 
+    ascii-cleaner remove myfile.txt --log-mode
     ascii-cleaner remove myfile.txt --no-backup
-    ascii-cleaner replace myfile.txt
-    ascii-cleaner replace myfile.txt --char='*'
-    
+    ascii-cleaner remove myfile.txt --no-backup --log-mode
+    ascii-cleaner replace myfile.txt --log-mode
+    ascii-cleaner replace myfile.txt --char='%'
+    ascii-cleaner replace myfile.txt --char='*' --log-mode    
 "#;
         output.to_owned()
     }

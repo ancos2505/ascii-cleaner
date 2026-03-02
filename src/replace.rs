@@ -5,7 +5,7 @@ use std::{
 };
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult, ReplaceChar, WithBackup,
+    AsciiCleaner, AsciiCleanerResult, LogMode, ReplaceChar, WithBackup,
     helper::backup_file,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
@@ -48,7 +48,7 @@ impl AsciiCleaner {
                     byte: (*c).into(),
                 };
                 // TODO:
-                if self.log_mode == true {
+                if log_mode == LogMode::PrintOnEachFinding {
                     println!("{found}")
                 }
                 findings.push(found);

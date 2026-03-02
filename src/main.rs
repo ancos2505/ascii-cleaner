@@ -2,7 +2,7 @@ mod cli;
 
 use std::{fmt::Debug, path::PathBuf, process::ExitCode};
 
-use ascii_cleaner::{AsciiCleaner, ReplaceChar, WithBackup};
+use ascii_cleaner::{AsciiCleaner, LogMode, ReplaceChar, WithBackup};
 
 use crate::cli::{Cli, CliError, CliResult};
 
@@ -56,6 +56,7 @@ fn smain() -> CliResult<()> {
         .next()
         .ok_or(CliError::InvalidFilePath)?;
 
+    let mut log_mode = LogMode::No;
     let mut with_backup = WithBackup::BackupFile;
 
     let mut maybe_replace_char = Some(ReplaceChar::default());
@@ -64,6 +65,11 @@ fn smain() -> CliResult<()> {
         if &item == "--no-backup" {
             with_backup = WithBackup::NoBackupFile
         }
+
+        if &item == "--log-mode" {
+            log_mode = LogMode::PrintOnEachFinding
+        }
+
         if item.contains("--char=") {
             maybe_replace_char = item
                 .split('=')
@@ -74,11 +80,6 @@ fn smain() -> CliResult<()> {
                 .map(|c| c.into());
         }
     }
-    dbg!(&maybe_replace_char);
-    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.finish();
-
-    // TODO: Get log_mode from args
-    // let ascii_cleaner = AsciiCleaner::builder().file(path)?.log_mode().finish();
 
     let action = match action.as_ref() {
         "detect" => Action::Detect,
@@ -90,9 +91,13 @@ fn smain() -> CliResult<()> {
         _ => return Err(CliError::UnknownAction(action)),
     };
 
-    dbg!(&action);
+    // let ascii_cleaner = AsciiCleaner::new(path)?;
 
-    let ascii_cleaner = AsciiCleaner::new(path)?;
+    let ascii_cleaner = if log_mode == LogMode::PrintOnEachFinding {
+        AsciiCleaner::builder().file(path)?.log_mode().finish()
+    } else {
+        AsciiCleaner::builder().file(path)?.finish()
+    };
 
     let report = match action {
         Action::Detect => ascii_cleaner.detect(),
@@ -102,7 +107,9 @@ fn smain() -> CliResult<()> {
         }
     }?;
 
-    println!("{report}");
+    if log_mode == LogMode::No {
+        println!("{report}");
+    }
 
     Ok(())
 }
