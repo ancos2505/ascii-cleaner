@@ -11,15 +11,20 @@ fn main() -> ExitCode {
         Ok(_) => ExitCode::SUCCESS,
         Err(err) => {
             match &err {
-                CliError::NoArgs | CliError::UnknownAction(_) => {
+                CliError::NoArgs => println!("{}", Cli::usage()),
+                CliError::UnknownAction(_) => {
                     print_error(&err);
-                    println!("{}", Cli::usage())
+                    eprintln!("{}", Cli::usage())
                 }
                 CliError::StdIo(_) => print_error(&err),
                 CliError::AsciiCleaner(_) => print_error(&err),
                 _ => print_error(&err),
             };
-            err.into()
+
+            match &err {
+                CliError::NoArgs => ExitCode::SUCCESS,
+                _ => err.into(),
+            }
         }
     }
 }

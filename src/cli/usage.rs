@@ -26,7 +26,7 @@ EXAMPLES:
     ascii-cleaner remove myfile.txt --no-backup --log-mode
     ascii-cleaner replace myfile.txt --log-mode
     ascii-cleaner replace myfile.txt --char='%'
-    ascii-cleaner replace myfile.txt --char='*' --log-mode    
+    ascii-cleaner replace myfile.txt --char='*' --log-mode
 "#;
         output.to_owned()
     }
