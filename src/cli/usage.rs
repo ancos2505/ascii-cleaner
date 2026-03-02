@@ -2,7 +2,8 @@ use crate::cli::Cli;
 
 impl Cli {
     pub(crate) fn usage() -> String {
-        let output = r#"ASCII Cleaner v0.1.2
+        let output = r#"
+ASCII Cleaner v0.1.2
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]

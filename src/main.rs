@@ -1,6 +1,6 @@
 mod cli;
 
-use std::{fmt::Debug, path::PathBuf, process::ExitCode};
+use std::{fmt::Debug, process::ExitCode};
 
 use ascii_cleaner::{AsciiCleaner, LogMode, ReplaceChar, WithBackup};
 
@@ -28,75 +28,18 @@ fn print_error<D: Debug>(error: &D) {
 }
 
 fn smain() -> CliResult<()> {
-    let mut args = std::env::args();
-
-    assert!(args.len() <= 5);
-
-    let _ = args.next();
-
-    let action = match args.next() {
-        Some(action) => {
-            match action.as_str() {
-                "detect" | "remove" | "replace" => (),
-                _ => return Err(CliError::UnknownAction(action)),
-            };
-            action
-        }
-        None => {
-            return Err(CliError::NoArgs);
-        }
-    };
-
-    let path = args
-        .next()
-        .map(PathBuf::from)
-        .ok_or(CliError::MissingFilePath)
-        .into_iter()
-        .filter(|path| path.is_file())
-        .next()
-        .ok_or(CliError::InvalidFilePath)?;
-
-    let mut log_mode = LogMode::No;
-    let mut with_backup = WithBackup::BackupFile;
-
-    let mut maybe_replace_char = Some(ReplaceChar::default());
-
-    for item in args.into_iter().collect::<Vec<String>>() {
-        if &item == "--no-backup" {
-            with_backup = WithBackup::NoBackupFile
-        }
-
-        if &item == "--log-mode" {
-            log_mode = LogMode::PrintOnEachFinding
-        }
-
-        if item.contains("--char=") {
-            maybe_replace_char = item
-                .split('=')
-                .nth(1)
-                .and_then(|s| s.chars().next())
-                .filter(|c| AsciiCleaner::is_allowed_ascii(*c as char))
-                .map(|c| c as u8)
-                .map(|c| c.into());
-        }
-    }
-
-    let action = match action.as_ref() {
-        "detect" => Action::Detect,
-        "remove" => Action::Remove(with_backup),
-        "replace" => match maybe_replace_char {
-            Some(replace_char) => Action::Replace(with_backup, replace_char),
-            None => return Err(CliError::InvalidReplaceCharArg(action)),
-        },
-        _ => return Err(CliError::UnknownAction(action)),
-    };
+    let Cli {
+        log_mode,
+        file_path,
+        action,
+    } = Cli::parse()?;
 
     // let ascii_cleaner = AsciiCleaner::new(path)?;
 
     let ascii_cleaner = if log_mode == LogMode::PrintOnEachFinding {
-        AsciiCleaner::builder().file(path)?.log_mode().finish()
+        AsciiCleaner::builder().file(file_path)?.log_mode().finish()
     } else {
-        AsciiCleaner::builder().file(path)?.finish()
+        AsciiCleaner::builder().file(file_path)?.finish()
     };
 
     let report = match action {
