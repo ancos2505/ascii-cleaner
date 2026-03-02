@@ -2,14 +2,8 @@
 
 # set -ex
 
-MUSL_TARGET="$(arch)-unknown-linux-musl"
+./build.sh
 
-cargo build --release --target=${MUSL_TARGET}
-
-mkdir -p dist
-
-cp -v ./target/${MUSL_TARGET}/release/ascii-cleaner ./dist/
-cp -v ./myfile.txt ./dist/
 pushd ./dist/
 ./ascii-cleaner detect myfile.txt
 ./ascii-cleaner detect myfile.txt | jq .

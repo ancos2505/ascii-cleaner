@@ -2,5 +2,14 @@
 name = "ascii-cleaner"
 version = "0.1.2"
 edition = "2024"
+authors = ["[Antonio Costa - ancos2505](https://github.com/ancos2505)"]
+description = "Detect, Remove and Replace non-ASCII characters"
+readme = "README.md"
+keywords = [
+    "text",
+    "ascii",
+]
+license = "MIT"
+repository = "https://github.com/ancos2505/ascii-cleaner"
 
 [dependencies]
