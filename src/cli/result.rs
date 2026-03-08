@@ -1,4 +1,4 @@
-use std::{io::Error as StdIoError, process::ExitCode};
+use std::process::ExitCode;
 
 use ascii_cleaner::AsciiCleanerError;
 
@@ -11,15 +11,7 @@ pub enum CliError {
     MissingFilePath,
     InvalidFilePath,
     InvalidReplaceCharArg(String),
-    // MissingInput,
-    StdIo(StdIoError),
     AsciiCleaner(AsciiCleanerError),
-}
-
-impl From<StdIoError> for CliError {
-    fn from(value: StdIoError) -> Self {
-        Self::StdIo(value)
-    }
 }
 
 impl From<AsciiCleanerError> for CliError {
@@ -31,13 +23,16 @@ impl From<AsciiCleanerError> for CliError {
 impl From<CliError> for ExitCode {
     fn from(value: CliError) -> Self {
         let outcome = match value {
-            CliError::NoArgs => 1,
-            CliError::UnknownAction(_) => 2,
-            CliError::MissingFilePath => 2,
-            CliError::InvalidFilePath => 2,
-            CliError::InvalidReplaceCharArg(_) => 2,
-            CliError::StdIo(_) => 3,
-            CliError::AsciiCleaner(_) => 4,
+            CliError::NoArgs | CliError::UnknownAction(_) => 1,
+            CliError::MissingFilePath | CliError::InvalidReplaceCharArg(_) => 2,
+            CliError::InvalidFilePath => 3,
+            CliError::AsciiCleaner(lib_err) => match lib_err {
+                AsciiCleanerError::InvalidFilePath => 3,
+                AsciiCleanerError::Infallibe(_)
+                | AsciiCleanerError::TryFromIntError(_)
+                | AsciiCleanerError::StdIo(_)
+                | AsciiCleanerError::SystemTime(_) => 4,
+            },
         };
         outcome.into()
     }

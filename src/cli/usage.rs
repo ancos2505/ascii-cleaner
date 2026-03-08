@@ -2,8 +2,9 @@ use crate::cli::Cli;
 
 impl Cli {
     pub(crate) fn usage() -> String {
-        let output = r#"
-ASCII Cleaner v0.1.2
+        format!(
+            r#"
+ASCII Cleaner v{}
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]
@@ -27,7 +28,19 @@ EXAMPLES:
     ascii-cleaner replace myfile.txt --log-mode
     ascii-cleaner replace myfile.txt --char='%'
     ascii-cleaner replace myfile.txt --char='*' --log-mode
-"#;
-        output.to_owned()
+
+EXIT STATUS:
+    0      if OK,
+
+    1      if cli action problems (e.g., unkonwn action),
+
+    2      if cli argument problems (e.g., no arg for file path),
+
+    3      if io access problems (e.g., file not found),
+
+    4      if serious trouble (e.g., can't read file).
+"#,
+            env!("CARGO_PKG_VERSION")
+        )
     }
 }

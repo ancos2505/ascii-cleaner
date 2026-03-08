@@ -2,13 +2,18 @@ use std::{
     fmt::{Debug, Display},
     num::NonZeroUsize,
     ops::Deref,
+    path::PathBuf,
 };
+
+use crate::Action;
 
 #[derive(Debug)]
 pub struct AsciiCleanerReport {
-    // file_name: PathBuf,
+    pub(crate) action: Action,
+    pub(crate) file_path: PathBuf,
     pub(crate) success: bool,
     pub(crate) bytes_read: usize,
+    pub(crate) new_file_size: Option<usize>,
     pub(crate) findings: Vec<AsciiCleanerReportItem>,
 }
 
@@ -17,7 +22,17 @@ impl Display for AsciiCleanerReport {
         let mut output = String::new();
         output.push('{');
         output.push_str(format!(r#""success":{},"#, self.success).as_str());
+        output.push_str(format!(r#""action":{},"#, self.action).as_str());
+        output.push_str(format!(r#""file_path":"{}","#, self.file_path.display()).as_str());
         output.push_str(format!(r#""bytes_read":{},"#, self.bytes_read).as_str());
+        match self.new_file_size {
+            Some(new_file_size) => {
+                output.push_str(format!(r#""new_file_size":{new_file_size},"#).as_str());
+            }
+            None => {
+                output.push_str(format!(r#""new_file_size":null,"#).as_str());
+            }
+        }
         output.push_str(format!(r#""findings":"#).as_str());
         if self.findings.len() > 0 {
             output.push('[');

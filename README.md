@@ -10,8 +10,9 @@ cargo install ascii-cleaner --git=https://github.com/ancos2505/ascii-cleaner.git
 ## Running
 ```sh
 $ ./ascii-cleaner 
+Error: NoArgs
 
-ASCII Cleaner v0.1.2
+ASCII Cleaner v0.2.0
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]
@@ -35,4 +36,16 @@ EXAMPLES:
     ascii-cleaner replace myfile.txt --log-mode
     ascii-cleaner replace myfile.txt --char='%'
     ascii-cleaner replace myfile.txt --char='*' --log-mode
+
+EXIT STATUS:
+    0      if OK,
+
+    1      if cli action problems (e.g., unkonwn action),
+
+    2      if cli argument problems (e.g., no arg for file path),
+
+    3      if io access problems (e.g., file not found),
+
+    4      if serious trouble (e.g., can't read file).
+
 ```

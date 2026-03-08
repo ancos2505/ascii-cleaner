@@ -9,7 +9,7 @@ impl AsciiCleaner {
     pub fn detect(self) -> AsciiCleanerResult<AsciiCleanerReport> {
         let Self {
             log_mode,
-            #[allow(unused_variables)]
+            action,
             file_path,
             mut file,
         } = self;
@@ -63,7 +63,10 @@ impl AsciiCleaner {
 
         let report = AsciiCleanerReport {
             success,
+            action,
+            file_path,
             bytes_read,
+            new_file_size: None,
             findings,
         };
         Ok(report)

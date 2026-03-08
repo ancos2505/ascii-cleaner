@@ -5,22 +5,15 @@ use std::{
 };
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult, LogMode, ReplaceChar, WithBackup,
-    helper::backup_file,
+    AsciiCleaner, AsciiCleanerResult, LogMode,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
-    pub fn replace(
-        self,
-        with_backup: WithBackup,
-        replace_char: Option<ReplaceChar>,
-    ) -> AsciiCleanerResult<AsciiCleanerReport> {
-        if with_backup == WithBackup::BackupFile {
-            backup_file(&self)?;
-        }
+    pub fn replace(self) -> AsciiCleanerResult<AsciiCleanerReport> {
         let Self {
             log_mode,
+            action,
             file_path,
             mut file,
         } = self;
@@ -30,16 +23,23 @@ impl AsciiCleaner {
         let bytes_read = file.read_to_end(&mut buf_input)?;
         drop(file);
 
-        let mut new_file = File::create(file_path)?;
+        let mut new_file = File::create(&file_path)?;
 
         let mut findings: Vec<AsciiCleanerReportItem> = vec![];
         let mut line = NonZeroUsize::new(1).unwrap();
         let mut column = NonZeroUsize::new(1).unwrap();
         let mut success = true;
+        let mut new_file_size = 0;
 
         for (idx, c) in buf_input.iter().enumerate() {
             if Self::is_allowed_ascii(*c as char) {
-                new_file.write(&[*c])?;
+                match &action {
+                    crate::Action::Detect => unreachable!(),
+                    crate::Action::Remove(_) | crate::Action::Replace(_, _) => {
+                        let bytes_wrote = new_file.write(&[*c])?;
+                        new_file_size += bytes_wrote;
+                    }
+                };
             } else {
                 let found = AsciiCleanerReportItem {
                     offset: idx.into(),
@@ -52,9 +52,15 @@ impl AsciiCleaner {
                     println!("{found}")
                 }
                 findings.push(found);
-                if let Some(ref char_to_replace) = replace_char {
-                    new_file.write(&[**char_to_replace])?;
-                }
+
+                match &action {
+                    crate::Action::Detect => unreachable!(),
+                    crate::Action::Remove(_) => (),
+                    crate::Action::Replace(_, replace_char) => {
+                        let bytes_wrote = new_file.write(&[**replace_char])?;
+                        new_file_size += bytes_wrote;
+                    }
+                };
             }
 
             if *c == 10 {
@@ -86,7 +92,14 @@ impl AsciiCleaner {
         new_file.sync_all()?;
         let report = AsciiCleanerReport {
             success,
+            action,
+            file_path,
             bytes_read,
+            new_file_size: if new_file_size != bytes_read {
+                Some(new_file_size)
+            } else {
+                None
+            },
             findings,
         };
         Ok(report)

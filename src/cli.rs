@@ -1,11 +1,9 @@
 mod result;
 mod usage;
 
-use std::path::PathBuf;
+use std::{ops::Not, path::PathBuf};
 
-use ascii_cleaner::{AsciiCleaner, LogMode, ReplaceChar, WithBackup};
-
-use crate::Action;
+use ascii_cleaner::{Action, AsciiCleaner, BackupFile, LogMode, ReplaceChar, WithBackup};
 
 pub(crate) use self::result::{CliError, CliResult};
 
@@ -38,20 +36,20 @@ impl Cli {
         let file_path = args
             .next()
             .map(PathBuf::from)
-            .ok_or(CliError::MissingFilePath)
-            .into_iter()
-            .filter(|path| path.is_file())
-            .next()
-            .ok_or(CliError::InvalidFilePath)?;
+            .ok_or(CliError::MissingFilePath)?;
+
+        if file_path.is_file().not() {
+            return Err(CliError::InvalidFilePath);
+        }
 
         let mut log_mode = LogMode::No;
-        let mut with_backup = WithBackup::BackupFile;
+        let mut backup_file_arg = None;
 
         let mut replace_char = Some(ReplaceChar::default());
 
         for item in args.into_iter().collect::<Vec<String>>() {
             if &item == "--no-backup" {
-                with_backup = WithBackup::NoBackupFile
+                backup_file_arg = Some(WithBackup::NoBackupFile);
             }
 
             if &item == "--log-mode" {
@@ -68,11 +66,16 @@ impl Cli {
                     .map(|c| c.into());
             }
         }
+        let with_backup = match backup_file_arg {
+            Some(no_backup) => no_backup,
+            None => WithBackup::BackupFile(BackupFile::new(&file_path)?),
+        };
+
         let action = match action_str.as_ref() {
-            "detect" => Action::Detect,
-            "remove" => Action::Remove(with_backup),
+            "detect" => Action::detect(),
+            "remove" => Action::remove(with_backup),
             "replace" => match replace_char {
-                Some(replace_char) => Action::Replace(with_backup, replace_char),
+                Some(replace_char) => Action::replace(with_backup, replace_char),
                 None => return Err(CliError::InvalidReplaceCharArg(action_str)),
             },
             _ => return Err(CliError::UnknownAction(action_str)),

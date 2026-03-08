@@ -14,15 +14,3 @@ impl AsciiCleaner {
             || c == '\r'
     }
 }
-
-pub(crate) fn backup_file(ctx: &AsciiCleaner) -> AsciiCleanerResult<u64> {
-    let mut new_file_path = ctx.file_path.clone();
-
-    new_file_path.add_extension(format!("bak.{}", now_in_unix_epoch()?));
-
-    // let bak_file = File::create_new(ctx.file_path)
-    //     .map_or_else(|e| Ok(File::create_new(new_path)?), |f| Ok(f))?;
-
-    let bytes_transferred = std::fs::copy(&ctx.file_path, new_file_path)?;
-    Ok(bytes_transferred)
-}
