@@ -5,14 +5,14 @@ use std::{
 };
 
 use crate::{
-    AsciiCleaner, AsciiCleanerResult, LogMode,
+    AsciiCleaner, AsciiCleanerResult, RunningMode,
     report::{AsciiCleanerReport, AsciiCleanerReportItem},
 };
 
 impl AsciiCleaner {
     pub fn replace(self) -> AsciiCleanerResult<AsciiCleanerReport> {
         let Self {
-            log_mode,
+            run_mode,
             action,
             file_path,
             mut file,
@@ -48,7 +48,7 @@ impl AsciiCleaner {
                     byte: (*c).into(),
                 };
                 // TODO:
-                if log_mode == LogMode::PrintOnEachFinding {
+                if run_mode == RunningMode::PrintOnEachFinding {
                     println!("{found}")
                 }
                 findings.push(found);

@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    Action, AsciiCleaner, AsciiCleanerError, AsciiCleanerResult, BackupFile, FileSize, LogMode,
+    Action, AsciiCleaner, AsciiCleanerError, AsciiCleanerResult, BackupFile, FileSize, RunningMode,
     WithBackup,
 };
 
@@ -69,7 +69,7 @@ pub struct BuilderWithFile {
     file: File,
 }
 impl BuilderWithFile {
-    pub fn log_mode(self) -> BuilderToFinish {
+    pub fn print_each_finding(self) -> BuilderToFinish {
         let Self {
             file,
             file_path,
@@ -77,7 +77,20 @@ impl BuilderWithFile {
         } = self;
         BuilderToFinish {
             file,
-            log_mode: LogMode::PrintOnEachFinding,
+            run_mode: RunningMode::PrintOnEachFinding,
+            file_path,
+            action,
+        }
+    }
+    pub fn quiet_mode(self) -> BuilderToFinish {
+        let Self {
+            file,
+            file_path,
+            action,
+        } = self;
+        BuilderToFinish {
+            file,
+            run_mode: RunningMode::Quiet,
             file_path,
             action,
         }
@@ -91,7 +104,7 @@ impl BuilderWithFile {
         AsciiCleaner {
             file,
             file_path,
-            log_mode: LogMode::No,
+            run_mode: RunningMode::ReportAlways,
             action,
         }
     }
@@ -101,21 +114,21 @@ pub struct BuilderToFinish {
     action: Action,
     file: File,
     file_path: PathBuf,
-    log_mode: LogMode,
+    run_mode: RunningMode,
 }
 
 impl BuilderToFinish {
     pub fn finish(self) -> AsciiCleaner {
         let Self {
             file,
-            log_mode,
+            run_mode,
             file_path,
             action,
         } = self;
         AsciiCleaner {
             file_path,
             file,
-            log_mode,
+            run_mode,
             action,
         }
     }

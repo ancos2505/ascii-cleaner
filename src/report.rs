@@ -9,12 +9,12 @@ use crate::Action;
 
 #[derive(Debug)]
 pub struct AsciiCleanerReport {
-    pub(crate) action: Action,
-    pub(crate) file_path: PathBuf,
-    pub(crate) success: bool,
-    pub(crate) bytes_read: usize,
-    pub(crate) new_file_size: Option<usize>,
-    pub(crate) findings: Vec<AsciiCleanerReportItem>,
+    pub action: Action,
+    pub file_path: PathBuf,
+    pub success: bool,
+    pub bytes_read: usize,
+    pub new_file_size: Option<usize>,
+    pub findings: Vec<AsciiCleanerReportItem>,
 }
 
 impl Display for AsciiCleanerReport {

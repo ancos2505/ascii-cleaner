@@ -19,7 +19,7 @@ use crate::{builder::Builder, helper::now_in_unix_epoch};
 
 #[derive(Debug)]
 pub struct AsciiCleaner {
-    log_mode: LogMode,
+    run_mode: RunningMode,
     action: Action,
     file_path: PathBuf,
     file: File,
@@ -78,9 +78,10 @@ impl Display for Action {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum LogMode {
+pub enum RunningMode {
     PrintOnEachFinding,
-    No,
+    ReportAlways,
+    Quiet,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

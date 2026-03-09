@@ -2,7 +2,7 @@ mod cli;
 
 use std::{fmt::Debug, process::ExitCode};
 
-use ascii_cleaner::{Action, AsciiCleaner, LogMode};
+use ascii_cleaner::{Action, AsciiCleaner, RunningMode};
 
 use crate::cli::{Cli, CliError, CliResult};
 
@@ -29,19 +29,23 @@ fn print_error<D: Debug>(error: &D) {
 
 fn smain() -> CliResult<()> {
     let Cli {
-        log_mode,
+        run_mode,
         file_path,
         action,
     } = Cli::parse()?;
 
-    let ascii_cleaner = if log_mode == LogMode::PrintOnEachFinding {
-        AsciiCleaner::builder()
+    let ascii_cleaner = match run_mode {
+        RunningMode::PrintOnEachFinding => AsciiCleaner::builder()
             .action(action.clone())?
             .file(file_path)?
-            .log_mode()
-            .finish()
-    } else {
-        AsciiCleaner::new(action.clone(), file_path)?
+            .print_each_finding()
+            .finish(),
+        RunningMode::ReportAlways => AsciiCleaner::new(action.clone(), file_path)?,
+        RunningMode::Quiet => AsciiCleaner::builder()
+            .action(action.clone())?
+            .file(file_path)?
+            .quiet_mode()
+            .finish(),
     };
 
     let report = match action {
@@ -50,9 +54,17 @@ fn smain() -> CliResult<()> {
         Action::Replace(_, _) => ascii_cleaner.replace(),
     }?;
 
-    if log_mode == LogMode::No {
-        println!("{report}");
-    }
+    match run_mode {
+        RunningMode::PrintOnEachFinding => (),
+        RunningMode::ReportAlways => {
+            println!("{report}");
+        }
+        RunningMode::Quiet => {
+            if report.findings.len() > 0 {
+                println!("{report}");
+            }
+        }
+    };
 
     Ok(())
 }
