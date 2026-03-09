@@ -13,7 +13,7 @@ cargo install ascii-cleaner --git=https://github.com/ancos2505/ascii-cleaner.git
 $ ./ascii-cleaner 
 Error: NoArgs
 
-ASCII Cleaner v0.2.1
+ASCII Cleaner v0.2.2
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]
@@ -27,9 +27,9 @@ OPTIONS (for sanitize action):
     --no-backup         Don't create backup file
     --char=CHAR      Replace non-ASCII characters with CHAR (default: '?')
 
-OPTIONS (for report):
-    --log-mode  Print a json object on each finding and then a full report.
-    --quiet     Print report only on findings
+OPTIONS (for report modifying):
+    --log-mode  Print a JSON object for each finding. No report is generated.
+    --quiet     Print the report only if findings are present.
 
 EXAMPLES:
     ascii-cleaner detect myfile.txt
