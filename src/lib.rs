@@ -127,12 +127,18 @@ pub enum BackupFile {
     Finished(PathBuf, FileSize),
 }
 impl BackupFile {
+    pub const FILE_EXTENSION: &str = "bac";
     pub fn new(file_path: &PathBuf) -> AsciiCleanerResult<Self> {
         Ok(Self::Defined(Self::generate_bkp_file_path(file_path)?))
     }
 
     fn generate_bkp_file_path(file_path: &PathBuf) -> AsciiCleanerResult<PathBuf> {
-        let new_file_str = format!("{}.bak.{}", file_path.display(), now_in_unix_epoch()?);
+        let new_file_str = format!(
+            "{file_path}.{now_epoch}.{file_extension}",
+            file_path = file_path.display(),
+            now_epoch = now_in_unix_epoch()?,
+            file_extension = Self::FILE_EXTENSION
+        );
         let mut new_file_path = PathBuf::new();
         new_file_path.push(new_file_str);
 

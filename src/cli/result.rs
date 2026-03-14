@@ -11,6 +11,7 @@ pub enum CliError {
     MissingFilePath,
     InvalidFilePath,
     InvalidReplaceCharArg(String),
+    BackupFileExtension,
     AsciiCleaner(AsciiCleanerError),
 }
 
@@ -25,7 +26,7 @@ impl From<CliError> for ExitCode {
         let outcome = match value {
             CliError::NoArgs | CliError::UnknownAction(_) => 1,
             CliError::MissingFilePath | CliError::InvalidReplaceCharArg(_) => 2,
-            CliError::InvalidFilePath => 3,
+            CliError::InvalidFilePath | CliError::BackupFileExtension => 3,
             CliError::AsciiCleaner(lib_err) => match lib_err {
                 AsciiCleanerError::InvalidFilePath => 3,
                 AsciiCleanerError::Infallibe(_)

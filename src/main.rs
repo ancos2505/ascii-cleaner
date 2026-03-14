@@ -23,6 +23,7 @@ fn main() -> ExitCode {
         }
     }
 }
+// TODO: Implement json | text output mode
 fn print_error<D: Debug>(error: &D) {
     eprintln!("Error: {error:?}")
 }
