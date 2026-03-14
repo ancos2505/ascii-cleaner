@@ -2,60 +2,71 @@ mod cli;
 
 use std::{fmt::Debug, process::ExitCode};
 
-use ascii_cleaner::{Action, AsciiCleaner, RunningMode};
+use ascii_cleaner::{Action, AsciiCleaner, AsciiCleanerError, AsciiCleanerResult, RunningMode};
 
-use crate::cli::{Cli, CliError, CliResult};
+use crate::cli::{Cli, CliError};
+
+#[allow(unused)]
+#[derive(Debug)]
+struct Error<'a> {
+    cli: Cli,
+    error: &'a AsciiCleanerError,
+}
 
 fn main() -> ExitCode {
-    match smain() {
-        Ok(_) => ExitCode::SUCCESS,
-        Err(err) => {
-            match &err {
+    let cli = match Cli::parse() {
+        Ok(v) => v,
+        Err(cli_error) => {
+            match &cli_error {
                 CliError::NoArgs | CliError::UnknownAction(_) => {
-                    print_error(&err);
+                    eprintln!("CliError: {:?}", &cli_error);
                     eprintln!("{}", Cli::usage())
                 }
 
-                CliError::AsciiCleaner(_) => print_error(&err),
-                _ => print_error(&err),
+                CliError::AsciiCleaner(_) => eprintln!("CliError: {:?}", &cli_error),
+                _ => eprintln!("CliError: {:?}", &cli_error),
             };
-            err.into()
+            return cli_error.into();
+        }
+    };
+    match smain(&cli) {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(err) => {
+            print_error(Error { cli, error: &err });
+
+            let cli_error: CliError = err.into();
+
+            cli_error.into()
         }
     }
 }
 // TODO: Implement json | text output mode
-fn print_error<D: Debug>(error: &D) {
-    eprintln!("Error: {error:?}")
+fn print_error(error: Error) {
+    eprintln!("{error:?}")
 }
 
-fn smain() -> CliResult<()> {
-    let Cli {
-        run_mode,
-        file_path,
-        action,
-    } = Cli::parse()?;
-
-    let ascii_cleaner = match run_mode {
+fn smain(cli: &Cli) -> AsciiCleanerResult<()> {
+    let ascii_cleaner = match cli.run_mode {
         RunningMode::PrintOnEachFinding => AsciiCleaner::builder()
-            .action(action.clone())?
-            .file(file_path)?
+            .action(cli.action.clone())?
+            .file(cli.file_path.clone())?
             .print_each_finding()
             .finish(),
-        RunningMode::ReportAlways => AsciiCleaner::new(action.clone(), file_path)?,
+        RunningMode::ReportAlways => AsciiCleaner::new(cli.action.clone(), cli.file_path.clone())?,
         RunningMode::Quiet => AsciiCleaner::builder()
-            .action(action.clone())?
-            .file(file_path)?
+            .action(cli.action.clone())?
+            .file(cli.file_path.clone())?
             .quiet_mode()
             .finish(),
     };
 
-    let report = match action {
+    let report = match cli.action {
         Action::Detect => ascii_cleaner.detect(),
         Action::Remove(_) => ascii_cleaner.remove(),
         Action::Replace(_, _) => ascii_cleaner.replace(),
     }?;
 
-    match run_mode {
+    match cli.run_mode {
         RunningMode::PrintOnEachFinding => (),
         RunningMode::ReportAlways => {
             println!("{report}");

@@ -7,6 +7,7 @@ use ascii_cleaner::{Action, AsciiCleaner, BackupFile, ReplaceChar, RunningMode, 
 
 pub(crate) use self::result::{CliError, CliResult};
 
+#[derive(Debug, Clone)]
 pub(crate) struct Cli {
     pub(crate) run_mode: RunningMode,
     pub(crate) file_path: PathBuf,

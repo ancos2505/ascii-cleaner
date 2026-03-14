@@ -51,7 +51,12 @@ impl BuilderWithAction {
             },
         };
         if file_path.is_file() {
-            let file = OpenOptions::new().read(true).write(true).open(&file_path)?;
+            let file = if action == Action::Detect {
+                OpenOptions::new().read(true).open(&file_path)?
+            } else {
+                OpenOptions::new().read(true).write(true).open(&file_path)?
+            };
+
             Ok(BuilderWithFile {
                 file,
                 file_path,

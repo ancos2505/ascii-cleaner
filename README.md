@@ -3,7 +3,14 @@
 Detect, Remove or Replace non-ascii char on your texts - No external dependencies - 100% human created code 
 
 ### Installation
+
+```sh
+cargo install ascii-cleaner
 ```
+
+or the latest development version
+
+```sh
 cargo install ascii-cleaner --git=https://github.com/ancos2505/ascii-cleaner.git
 ```
 
@@ -13,7 +20,7 @@ cargo install ascii-cleaner --git=https://github.com/ancos2505/ascii-cleaner.git
 $ ./ascii-cleaner 
 Error: NoArgs
 
-ASCII Cleaner v0.2.2
+ASCII Cleaner v0.3.0 - Build: 1773499951
 
 USAGE:
     ascii-cleaner <ACTION> <FILE> [OPTIONS]
@@ -22,9 +29,10 @@ ACTIONS:
     detect      Detect non-ASCII characters in file
     remove      Remove non-ASCII characters
     replace     Replace non-ASCII characters
-
+    
 OPTIONS (for sanitize action):
-    --no-backup         Don't create backup file
+    --no-backup      Don't create backup file (<FILE>.<epoch_time>.bac)
+    --accept-bac     Accept the file with `.bac` extension
     --char=CHAR      Replace non-ASCII characters with CHAR (default: '?')
 
 OPTIONS (for report modifying):
@@ -36,6 +44,7 @@ EXAMPLES:
     ascii-cleaner detect myfile.txt --log-mode
     ascii-cleaner detect myfile.txt --quiet
     ascii-cleaner remove myfile.txt 
+    ascii-cleaner remove otherfile.bac --accept-bac 
     ascii-cleaner remove myfile.txt --log-mode
     ascii-cleaner remove myfile.txt --no-backup
     ascii-cleaner remove myfile.txt --no-backup --log-mode

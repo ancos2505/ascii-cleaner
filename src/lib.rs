@@ -33,7 +33,7 @@ impl AsciiCleaner {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Action {
     Detect,
     Remove(WithBackup),
@@ -77,7 +77,7 @@ impl Display for Action {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunningMode {
     PrintOnEachFinding,
     ReportAlways,
@@ -181,7 +181,7 @@ impl Display for WithBackup {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct ReplaceChar(u8);
 impl Default for ReplaceChar {
     fn default() -> Self {
